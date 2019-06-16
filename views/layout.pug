@@ -1,0 +1,45 @@
+doctype html
+html
+    head
+        title   text speaking app
+        link(rel="stylesheet", href="/bower_components/bootstrap/dist/css/bootstrap.css")
+        link(rel="stylesheet", href="/css/style.css")
+    body
+        nav.navbar.navbar-inverse.navbar-expand-lg.navbar-dark.bg-dark
+            a.navbar-brand(href='#') Speech Recorder
+            button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarNav', aria-controls='navbarNav', aria-expanded='false', aria-label='Toggle navigation')
+                span.navbar-toggler-icon
+            #navbarNav.collapse.navbar-collapse
+                ul.navbar-nav
+                    li
+                        a.nav-link(href='/')
+                            | Articles 
+                            span.sr-only (current)
+                    if user
+                        li.nav-item
+                            a.nav-link(href='/articles/add') Add Article
+                ul.navbar-nav.ml-auto
+                    if user
+                        li
+                            a.nav-link(href="/users/logout") Logout 
+                    else
+                        li
+                            a.nav-link(href="/users/register") Register 
+                        li
+                            a.nav-link(href="/users/login") Login
+                    
+        .container
+            br
+            br
+            != messages('message', locals)
+            if errors
+                each error, i in errors
+                    div(class="alert alert-danger") #{error.msg}
+            block content
+            br
+            hr
+            footer
+                p Copyright &copy; 2019
+        script(src='/bower_components/jquery/dist/jquery.js')
+        script(src='/bower_components/bootstrap/dist/js/bootstrap.js')
+        script(src="/js/main.js")
