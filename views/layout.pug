@@ -11,15 +11,13 @@ html
                 span.navbar-toggler-icon
             #navbarNav.collapse.navbar-collapse
                 ul.navbar-nav
-                    li
-                        a.nav-link(href='/')
-                            | Articles 
-                            span.sr-only (current)
                     if user
                         li.nav-item
-                            a.nav-link(href='/articles/add') Add Article
+                            a.nav-link(href='/articles/add')
                 ul.navbar-nav.ml-auto
                     if user
+                        li
+                            a.nav-link(href="#") welcome #{user.name}
                         li
                             a.nav-link(href="/users/logout") Logout 
                     else
@@ -27,7 +25,23 @@ html
                             a.nav-link(href="/users/register") Register 
                         li
                             a.nav-link(href="/users/login") Login
+        
+        if user
+            form(method='POST',action="/users/register")
+            #form-group
+                textarea.form-control.ttarea.textToRead(name='name',type='text',rows="17")
+                #controls(style='position=center')
+                    button#LoadText Load Text
+                    button#recordButton Record
+                    button#stopButton(disabled='') Stop
+                    br
                     
+                    br
+                div#status
+                    p#status2 status
+                h3#rec Recordings
+                ol#recordingsList
+            
         .container
             br
             br
@@ -42,4 +56,7 @@ html
                 p Copyright &copy; 2019
         script(src='/bower_components/jquery/dist/jquery.js')
         script(src='/bower_components/bootstrap/dist/js/bootstrap.js')
+        
+        script(src="../recJsFiles/WebAudioRecorder.min.js")
+        script(src="/js/record.js")
         script(src="/js/main.js")

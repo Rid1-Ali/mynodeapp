@@ -1,8 +1,5 @@
 extends layout
 
 block content
-    h1 #{title}
-    ul.list-group
-        each article, i in articles
-            li.list-group-item
-                a(href="/articles/"+article._id)= article.title
+    if user
+        h1 welcome mr

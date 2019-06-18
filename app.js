@@ -7,6 +7,8 @@ const flash = require('connect-flash');
 const session = require('express-session');
 const config = require('./config/database')
 const passport = require('passport');
+var multer = require("multer");
+
 
 mongoose.connect(config.database);
 let db = mongoose.connection;
@@ -33,6 +35,7 @@ let Article = require('./models/article');
 
 
 
+
 //load view engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -53,6 +56,8 @@ app.use(session({
     resave: true,
     saveUninitialized: true
   }));
+
+
 
 //Express Messages Middleware
 app.use(require('connect-flash')());
@@ -117,6 +122,31 @@ let users = require('./routes/users');
 app.use('/articles', articles);
 app.use('/users', users);
 
+//RecordPost
+//I get the file, put it on form data, left is to process the data
+app.post('/upload',function(req,res){
+  console.log('Node Ajax is called');
+  
+  //console.log(app.body)
+  var alink = 'req.body.name';
+
+
+  if (Object.keys(alink).length == 0) {
+      return res.status(400).send('Audio is not submitted');
+    }
+  
+    // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+    let sampleFile = alink;
+  
+    // Use the mv() method to place the file somewhere on your server
+    sampleFile.mv(path.join(__dirname ,'audios/adis123.wav'), function(err) {
+      if (err)
+        return res.status(500).send(err);
+  
+      res.send('File uploaded!');
+    });
+  
+})
 
 
 
