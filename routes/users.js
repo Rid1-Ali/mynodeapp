@@ -3,13 +3,26 @@ const router = express.Router();
 const bcrypt = require("bcryptjs")
 const passport = require('passport');
 const path = require('path');
-
+const MongoClient = require('mongodb').MongoClient;
 var multer = require("multer");
-var destination = path.join(__dirname ,'../audios/');
+var no;
+var userId;
+const config = require('../config/database');
+var url = config.database;
+
+var destination = path.join(__dirname, '../audios/');
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, destination)
+  },
+  filename: function (req, file, cb) {
+    cb(null, no + '-' + userId)
+  }
+})
 
 var uploading = multer({
 
-  dest: destination
+  storage: storage
 
 });
 
@@ -41,7 +54,7 @@ router.post('/register', function (req, res) {
 
   if (errors) {
     res.render('register', {
-      errors: errors
+      errors: errorss
     });
   } else {
     let newUser = new User({
@@ -96,7 +109,9 @@ router.get('/logout', function (req, res) {
 router.post('/upload', uploading.single('audio'), function (req, res) {
 
   console.log('Node Ajax is called');
- // console.log(typeof (req.formdata));
+  // console.log(typeof (req.formdata));
+  no = req.body.no;
+  userId = req.user._id;
 
 
 
@@ -105,28 +120,50 @@ router.post('/upload', uploading.single('audio'), function (req, res) {
 
 
   //console.log(app.body)
-
-
-
-
-
-
-  // if (Object.keys(alink).length == 0) {
-  //     return res.status(400).send('Audio is not submitted');
-  //   }
-
-  // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
-  //let sampleFile = alink;
-
-  // Use the mv() method to place the file somewhere on your server
-  // sampleFile.mv(path.join(__dirname ,'audios/adis123.wav'), function(err) {
-  //   if (err)
-  //     return res.status(500).send(err);
-
-  //   res.send('File uploaded!');
-  // });
-
 })
 
+
+
+
+
+
+
+
+
+// Login Process
+router.get('/gettext', function (req, res) {
+  var stat = true;
+  var current = "You Finised All";
+  MongoClient.connect(url, function (err, db) {
+    if (err) throw err;
+    var dbo = db.db("nodekb");
+    var query = { no: 1 };
+    dbo.collection("texts").find().toArray(function (err, result) {
+      if (err) throw err;
+      console.log("Result is \n" + result);
+      for (let value of result) {
+        if (!(value.readBy.includes(req.user._id))) {
+          console.log(value.text);
+          current = value;
+          break;
+        }
+
+
+      };
+
+
+      res.send(current);
+      console.log(req.user._id);
+
+
+      db.close();
+    });
+  });
+
+
+
+
+
+})
 
 module.exports = router;

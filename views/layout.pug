@@ -29,7 +29,8 @@ html
         if user
             form(method='POST',action="/users/register")
             #form-group
-                textarea.form-control.ttarea.textToRead(name='name',type='text',rows="17")
+                h4#text-title Title:
+                textarea#textToRead.form-control.ttarea(name='name',type='text',rows="17")
                 #controls(style='position=center')
                     button#LoadText Load Text
                     button#recordButton Record

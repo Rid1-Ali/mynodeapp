@@ -12,8 +12,13 @@
     width: 80%;
     
     margin: 50px;
+    margin-top: 10px;
     position: left;
     border-color: #3c763d;
+}
+#text-title{
+    margin-top: 10px;
+margin-left: 50px;
 }
 #controls {
     width: auto;

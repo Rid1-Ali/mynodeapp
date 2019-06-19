@@ -7,7 +7,7 @@ const flash = require('connect-flash');
 const session = require('express-session');
 const config = require('./config/database')
 const passport = require('passport');
-var multer = require("multer");
+
 
 
 mongoose.connect(config.database);

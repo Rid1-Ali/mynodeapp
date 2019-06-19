@@ -1,3 +1,5 @@
+
+
 //webkitURL is deprecated but nevertheless
 URL = window.URL || window.webkitURL;
 var audioLink;
@@ -7,6 +9,9 @@ var input; 							//MediaStreamAudioSourceNode  we'll be recording
 var encodingType; 					//holds selected encoding for resulting audio (file)
 var encodeAfterRecord = true;       // when to encode
 var blobFile;
+var currentText;
+
+//var MongoClient = require('mongodb').MongoClient;
 
 // shim for AudioContext when it's not avb. 
 var AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -92,10 +97,10 @@ function startRecording() {
 			var myFile = blobToFile(blobFile, "audio.wav");
 
 			console.log("File name is " + typeof (myFile));
-
+			//console.log("Uid is "+ user._uid)
 			var formdata = new FormData();
-			formdata.append('audio', myFile, 'recorded.wav');
-
+			formdata.append('audio', myFile,   'recorded.wav');
+			formdata.append('no', currentText.no.toString());
 
 
 
@@ -217,32 +222,24 @@ function blobToFile(theBlob, fileName) {
 
 
 $(function () {
-	// GET A TEXT
-	$('#get-button').on('click', function () {
+	// GET/READ A TEXT
+	$('#LoadText').on('click', function () {
+
+		console.log('load text clicked');
+
 		$.ajax({
 			url: 'users/gettext',
 			contentType: 'application/json',
 			success: function (response) {
-				var tbodyEl = $('tbody');
+				$('#textToRead').val(response.text)
+				currentText = response;
 
-				tbodyEl.html('');
 
-				response.products.forEach(function (product) {
-					tbodyEl.append('\
-                        <tr>\
-                            <td class="id">' + product.id + '</td>\
-                            <td><input type="text" class="name" value="' + product.name + '"></td>\
-                            <td>\
-                                <button class="update-button">UPDATE/PUT</button>\
-                                <button class="delete-button">DELETE</button>\
-                            </td>\
-                        </tr>\
-                    ');
-				});
 			}
-		});
+		})
+
+
 	});
 
 
-
-
+});
