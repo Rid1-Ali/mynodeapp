@@ -5,8 +5,8 @@ const passport = require('passport');
 const path = require('path');
 const MongoClient = require('mongodb').MongoClient;
 var multer = require("multer");
-var no;
-var userId;
+var no = 'test';
+var userId = 'test2';
 const config = require('../config/database');
 var url = config.database;
 
@@ -16,7 +16,7 @@ var storage = multer.diskStorage({
     cb(null, destination)
   },
   filename: function (req, file, cb) {
-    cb(null, no + '-' + userId)
+    cb(null, file.originalname)
   }
 })
 
@@ -105,17 +105,34 @@ router.get('/logout', function (req, res) {
   res.redirect('/users/login');
 });
 
+//get userId
+router.get('/getUserId', function (req, res) {
+  res.send(req.user._id);
+});
+
 //Ajax uploading
 router.post('/upload', uploading.single('audio'), function (req, res) {
 
   console.log('Node Ajax is called');
   // console.log(typeof (req.formdata));
-  no = req.body.no;
+
+  no = parseInt(req.body.no, 10);
   userId = req.user._id;
+  MongoClient.connect(url, function (err, db) {
+    if (err) throw err;
+    var dbo = db.db("nodekb");
+    var myquery = { "no": no };
+    var newvalues = { $push: { readBy: req.user._id.toString() } };
+    dbo.collection("texts").updateOne(myquery, newvalues, function (err, res) {
+      if (err) throw err;
+      console.log("1 document updated");
+      db.close();
+    });
+  });
 
 
 
-  console.log(req.file);
+
   res.send(req.file);
 
 
@@ -142,7 +159,7 @@ router.get('/gettext', function (req, res) {
       if (err) throw err;
       console.log("Result is \n" + result);
       for (let value of result) {
-        if (!(value.readBy.includes(req.user._id))) {
+        if (!(value.readBy.includes(req.user._id.toString()))) {
           console.log(value.text);
           current = value;
           break;

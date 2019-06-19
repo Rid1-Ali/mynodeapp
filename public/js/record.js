@@ -10,6 +10,20 @@ var encodingType; 					//holds selected encoding for resulting audio (file)
 var encodeAfterRecord = true;       // when to encode
 var blobFile;
 var currentText;
+var currentUser;
+
+$.ajax(
+	{
+		url: "/users/getUserId",
+		type: "GET",
+		processData: false,
+		contentType: false,
+		success: function (res) {
+			currentUser = res;
+			console.log(res);
+
+		}
+	});
 
 //var MongoClient = require('mongodb').MongoClient;
 
@@ -22,13 +36,17 @@ var recordButton = document.getElementById("recordButton");
 var stopButton = document.getElementById("stopButton");
 var statusNote = document.getElementById("status2");
 
-//add events to those 2 buttons
+//add events to those 2 buttons"User Id is : "+
 recordButton.addEventListener("click", startRecording);
 stopButton.addEventListener("click", stopRecording);
 
 function startRecording() {
 	console.log("startRecording() called");
 	statusNote.innerHTML = "Recording...";
+
+	$.get('/users/getUserId', { category: 'client', type: 'premium' }, function (response) {
+		currentUser = response;
+	});
 	/*
 		Simple constraints object, for more advanced features see
 		https://addpipe.com/blog/audio-constraints-getusermedia/
@@ -85,6 +103,9 @@ function startRecording() {
 		});
 
 		recorder.onComplete = function (recorder, blob) {
+
+
+
 			//__log("Recording complete");
 			console.log("Recording complete");
 			statusNote.innerHTML = "Recording";
@@ -97,26 +118,28 @@ function startRecording() {
 			var myFile = blobToFile(blobFile, "audio.wav");
 
 			console.log("File name is " + typeof (myFile));
-			//console.log("Uid is "+ user._uid)
+			console.log("Uid is " + currentUser)
 			var formdata = new FormData();
-			formdata.append('audio', myFile,   'recorded.wav');
+
+			formdata.append('audio', myFile, currentText.no.toString() + '-' + currentUser + '.wav');
 			formdata.append('no', currentText.no.toString());
 
 
 
 			//Ajax
 			console.log('Ajax is called');
-			$.ajax({
-				url: "/users/upload",
-				type: "POST",
-				data: formdata,
-				processData: false,
-				contentType: false,
-				success: function (res) {
-					console.log("sent to server");
-					;
-				}
-			});
+			$.ajax(
+				{
+					url: "/users/upload",
+					type: "POST",
+					data: formdata,
+					processData: false,
+					contentType: false,
+					success: function (res) {
+						console.log("sent to server");
+						;
+					}
+				});
 
 
 
