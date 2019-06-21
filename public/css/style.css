@@ -12,13 +12,18 @@
     width: 80%;
     
     margin: 50px;
-    margin-top: 10px;
+    margin-top: 25px;
+    margin-bottom: 10px;
     position: left;
     border-color: #3c763d;
 }
 #text-title{
-    margin-top: 10px;
+    margin-top: 20px;
 margin-left: 50px;
+}
+audio{
+
+  position: center
 }
 #controls {
     width: auto;
@@ -64,10 +69,13 @@ button:disabled {
 button:first-child {
   margin-left: 0;
 }
-#rec{
+#rec , audio{
     position: center;
     margin-top: 35px;
     margin-left: 20%;
+}
+ul{
+  list-style-type: none;
 }
 #status{
     margin-left: 45%;

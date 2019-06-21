@@ -123,5 +123,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+*.wav
 
 # End of https://www.gitignore.io/api/node,windows,visualstudiocode

@@ -20,7 +20,7 @@ $.ajax(
 		contentType: false,
 		success: function (res) {
 			currentUser = res;
-			console.log(res);
+			//(res);
 
 		}
 	});
@@ -108,20 +108,24 @@ function startRecording() {
 
 			//__log("Recording complete");
 			console.log("Recording complete");
-			statusNote.innerHTML = "Recording";
+			statusNote.innerHTML = "Recording Complete";
 
 			createDownloadLink(blob, recorder.encoding);
-			console.log("1.audioLink is " + audioLink);
+			//console.log("1.audioLink is " + audioLink);
 
 
-			console.log("File name is " + typeof (blobFile));
+			//console.log("File name is " + typeof (blobFile));
 			var myFile = blobToFile(blobFile, "audio.wav");
 
-			console.log("File name is " + typeof (myFile));
-			console.log("Uid is " + currentUser)
-			var formdata = new FormData();
+			//console.log("File name is " + typeof (myFile));
+			//console.log("Uid is " + currentUser)
 
-			formdata.append('audio', myFile, currentText.no.toString() + '-' + currentUser + '.wav');
+			var d = new Date();
+			var formdata = new FormData();
+			var d = "(" + d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate() + "-" + d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds() + ")";
+			//console.log("Time is " + d);
+
+			formdata.append('audio', myFile, currentText.no.toString() + '-' + currentUser + d + '.wav');
 			formdata.append('no', currentText.no.toString());
 
 
@@ -209,7 +213,7 @@ function createDownloadLink(blob, encoding) {
 
 	//add the new audio and a elements to the li element
 	li.appendChild(au);
-	li.appendChild(link);
+	//li.appendChild(link);
 
 	//add the li element to the ordered list
 	if (!recordingsList.hasChildNodes()) {
@@ -254,7 +258,9 @@ $(function () {
 			url: 'users/gettext',
 			contentType: 'application/json',
 			success: function (response) {
-				$('#textToRead').val(response.text)
+				$('#textToRead').val(response.text);
+				console.log("Times of you read this metin: "+response.noOfTimes);
+				
 				currentText = response;
 
 

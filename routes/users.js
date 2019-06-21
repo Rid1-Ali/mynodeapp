@@ -157,17 +157,55 @@ router.get('/gettext', function (req, res) {
     var query = { no: 1 };
     dbo.collection("texts").find().toArray(function (err, result) {
       if (err) throw err;
-      console.log("Result is \n" + result);
+      //console.log("Result is \n" + result);
       for (let value of result) {
         if (!(value.readBy.includes(req.user._id.toString()))) {
-          console.log(value.text);
+          console.log("userId is: " + req.user._id);
+          //Check if the user and text exist in Repeat collection
+          dbo.collection("repeat").find({ uid: req.user._id.toString(), textNo: value.no }, { $exists: true }).toArray(function (err, doc) //find if a value exists
+          {
+            console.log("Doc is:");
+            console.log(doc);
+            if (doc.length > 0) //if it does
+            {
+              console.log("User exists in this metin. UserId: " + req.user._id.toString() + " and from database: " + doc[0].uid);
+              value.noOfTimes = doc[0].timesRead;
+              console.log('Value is : ');
+              console.log(value);
+            }
+            else // if it does not 
+            {
+              var toBeSent = {
+                uid: req.user._id.toString(),
+                textNo: value.no,
+                timesRead: 0
+              }
+              console.log(toBeSent);
+              MongoClient.connect(url, function (err, db) {
+                if (err) throw err;
+
+
+
+                // insert document to 'users' collection using insertOne
+                db.collection("repeat").insertOne(toBeSent, function (err, res) {
+                  if (err) throw err;
+                  console.log("Document inserted");
+                  // close the connection to db when you are done with it
+                  db.close();
+                });
+              });
+
+            }
+          });
           current = value;
           break;
         }
 
 
       };
+      //console.log(current);
 
+      console.log('current.noOfTimes: ' + current.noOfTimes);
 
       res.send(current);
       console.log(req.user._id);
