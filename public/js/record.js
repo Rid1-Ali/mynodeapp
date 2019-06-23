@@ -11,6 +11,7 @@ var encodeAfterRecord = true;       // when to encode
 var blobFile;
 var currentText;
 var currentUser;
+var noOfTimes;
 
 $.ajax(
 	{
@@ -125,10 +126,9 @@ function startRecording() {
 			var d = "(" + d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate() + "-" + d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds() + ")";
 			//console.log("Time is " + d);
 
-			formdata.append('audio', myFile, currentText.no.toString() + '-' + currentUser + d + '.wav');
+			formdata.append('audio', myFile, currentText.no.toString() + noOfTimes + '.-' + currentUser + d + '.wav');
 			formdata.append('no', currentText.no.toString());
-
-
+			formdata.append('noOfTimes', noOfTimes);
 
 			//Ajax
 			console.log('Ajax is called');
@@ -259,8 +259,9 @@ $(function () {
 			contentType: 'application/json',
 			success: function (response) {
 				$('#textToRead').val(response.text);
-				console.log("Times of you read this metin: "+response.noOfTimes);
-				
+				$('h4').text("Number of times you read: " + response.noOfTimes);
+				console.log("Times of you read this metin: " + response.noOfTimes);
+				noOfTimes = response.noOfTimes + 1;
 				currentText = response;
 
 

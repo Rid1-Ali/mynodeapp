@@ -129,6 +129,7 @@ router.post('/upload', uploading.single('audio'), function (req, res) {
       db.close();
     });
   });
+  
 
 
 
@@ -154,6 +155,7 @@ router.get('/gettext', function (req, res) {
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
     var dbo = db.db("nodekb");
+    var noOfTimes = 0;
     var query = { no: 1 };
     dbo.collection("texts").find().toArray(function (err, result) {
       if (err) throw err;
@@ -162,19 +164,20 @@ router.get('/gettext', function (req, res) {
         if (!(value.readBy.includes(req.user._id.toString()))) {
           console.log("userId is: " + req.user._id);
           //Check if the user and text exist in Repeat collection
-          dbo.collection("repeat").find({ uid: req.user._id.toString(), textNo: value.no }, { $exists: true }).toArray(function (err, doc) //find if a value exists
+          dbo.collection("repeat").find({ uid: req.user._id.toString(), textNo: value.no }).toArray(function (err, doc) //find if a value exists
           {
             console.log("Doc is:");
             console.log(doc);
             if (doc.length > 0) //if it does
             {
               console.log("User exists in this metin. UserId: " + req.user._id.toString() + " and from database: " + doc[0].uid);
-              value.noOfTimes = doc[0].timesRead;
+              noOfTimes = doc[0].timesRead;
               console.log('Value is : ');
               console.log(value);
             }
             else // if it does not 
             {
+              
               var toBeSent = {
                 uid: req.user._id.toString(),
                 textNo: value.no,
@@ -194,7 +197,6 @@ router.get('/gettext', function (req, res) {
                   db.close();
                 });
               });
-
             }
           });
           current = value;
@@ -204,7 +206,8 @@ router.get('/gettext', function (req, res) {
 
       };
       //console.log(current);
-
+      //current.noOfTimes = '12'
+      current.noOfTimes = noOfTimes;
       console.log('current.noOfTimes: ' + current.noOfTimes);
 
       res.send(current);
