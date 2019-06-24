@@ -125,8 +125,8 @@ function startRecording() {
 			var formdata = new FormData();
 			var d = "(" + d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate() + "-" + d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds() + ")";
 			//console.log("Time is " + d);
-
-			formdata.append('audio', myFile, currentText.no.toString() + noOfTimes + '.-' + currentUser + d + '.wav');
+			noOfTimes = noOfTimes + 1;
+			formdata.append('audio', myFile, currentText.no.toString() + '-' + noOfTimes + '.-' + currentUser + d + '.wav');
 			formdata.append('no', currentText.no.toString());
 			formdata.append('noOfTimes', noOfTimes);
 
@@ -145,6 +145,11 @@ function startRecording() {
 					}
 				});
 
+
+			$('h4').text("Number of times you read: " + (noOfTimes));
+			if (noOfTimes > 3) {
+				$("#recordButton").attr("disabled", true);
+			}
 
 
 
@@ -258,10 +263,11 @@ $(function () {
 			url: 'users/gettext',
 			contentType: 'application/json',
 			success: function (response) {
+				$("#recordButton").attr("disabled", false);
 				$('#textToRead').val(response.text);
-				$('h4').text("Number of times you read: " + response.noOfTimes);
-				console.log("Times of you read this metin: " + response.noOfTimes);
-				noOfTimes = response.noOfTimes + 1;
+				$('h4').text("Number of times you read: " + response.timesRead);
+				console.log("Times of you read this metin: " + (response.timesRead + 0));
+				noOfTimes = (response.timesRead + 0);
 				currentText = response;
 
 

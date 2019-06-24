@@ -5,7 +5,7 @@ const passport = require('passport');
 const path = require('path');
 const MongoClient = require('mongodb').MongoClient;
 var multer = require("multer");
-var no = 'test';
+//var no = 'test';
 var userId = 'test2';
 const config = require('../config/database');
 var url = config.database;
@@ -107,29 +107,49 @@ router.get('/logout', function (req, res) {
 
 //get userId
 router.get('/getUserId', function (req, res) {
-  res.send(req.user._id);
+  try {
+    res.send(req.user._id);
+  } catch (error) {
+
+  }
+
 });
 
 //Ajax uploading
 router.post('/upload', uploading.single('audio'), function (req, res) {
 
   console.log('Node Ajax is called');
-  // console.log(typeof (req.formdata));
+  console.log(typeof (req.formdata));
+  console.log('noOfTimes from serverside is ' + req.body.noOfTimes)
+  //console.log('Metin number is '+no);
 
-  no = parseInt(req.body.no, 10);
+  no2 = parseInt(req.body.no, 10);
   userId = req.user._id;
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
     var dbo = db.db("nodekb");
-    var myquery = { "no": no };
+
+    var myquery = { no: no2 };
     var newvalues = { $push: { readBy: req.user._id.toString() } };
-    dbo.collection("texts").updateOne(myquery, newvalues, function (err, res) {
-      if (err) throw err;
-      console.log("1 document updated");
-      db.close();
-    });
+
+    var myquery2 = { uid: userId.toString(), textNo: no2 }
+    var newvalues2 = { $set: { timesRead: parseInt(req.body.noOfTimes, 10) } }
+
+
+    //dbo.collection("repeat").update(myquery2, newvalues2, { upsert: false });
+    dbo.collection("repeat").update(myquery2, newvalues2, { upsert: false, multi: true });
+    //var myquery = { address: "Valley 345" };
+    //var newvalues = { $set: { name: "Mickey", address: "Canyon 123" } };
+    //dbo.collection("repeat").update({ name: "ridwan" }, { $set: { address: "Canyon 123" } }, { upsert: false });
+    console.log("True or False: " + (parseInt(req.body.noOfTimes, 10) > 3));
+
+    if (parseInt(req.body.noOfTimes, 10) > 3) {
+      dbo.collection("texts").update(myquery, newvalues, { upsert: false, multi: true });
+
+    }
+    db.close();
   });
-  
+
 
 
 
@@ -141,87 +161,118 @@ router.post('/upload', uploading.single('audio'), function (req, res) {
 })
 
 
-
-
-
-
-
-
-
 // Login Process
-router.get('/gettext', function (req, res) {
-  var stat = true;
-  var current = "You Finised All";
+router.get('/gettext', async function (req, res) {
+
+
+  let metinNumber;
+  let times;
+  var current = { text: "You Finised All" };
+
+
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
     var dbo = db.db("nodekb");
-    var noOfTimes = 0;
-    var query = { no: 1 };
+
+
     dbo.collection("texts").find().toArray(function (err, result) {
       if (err) throw err;
-      //console.log("Result is \n" + result);
       for (let value of result) {
         if (!(value.readBy.includes(req.user._id.toString()))) {
-          console.log("userId is: " + req.user._id);
-          //Check if the user and text exist in Repeat collection
-          dbo.collection("repeat").find({ uid: req.user._id.toString(), textNo: value.no }).toArray(function (err, doc) //find if a value exists
-          {
-            console.log("Doc is:");
-            console.log(doc);
-            if (doc.length > 0) //if it does
-            {
-              console.log("User exists in this metin. UserId: " + req.user._id.toString() + " and from database: " + doc[0].uid);
-              noOfTimes = doc[0].timesRead;
-              console.log('Value is : ');
-              console.log(value);
-            }
-            else // if it does not 
-            {
-              
-              var toBeSent = {
-                uid: req.user._id.toString(),
-                textNo: value.no,
-                timesRead: 0
-              }
-              console.log(toBeSent);
-              MongoClient.connect(url, function (err, db) {
-                if (err) throw err;
+          metinNumber = value.no;
+          console.log("userId is: " + req.user._id.toString() + " did not read metin number " + value.no);
 
 
-
-                // insert document to 'users' collection using insertOne
-                db.collection("repeat").insertOne(toBeSent, function (err, res) {
-                  if (err) throw err;
-                  console.log("Document inserted");
-                  // close the connection to db when you are done with it
-                  db.close();
-                });
-              });
-            }
-          });
-          current = value;
+          console.log("Metin number is " + metinNumber);
+          current = value
+          //current.timesRead = 5
+          //console.log("current is " + JSON.stringify(current) );
           break;
         }
+      }
+      dbo.collection("repeat").find({ uid: req.user._id.toString(), textNo: parseInt(metinNumber, 10) }).toArray(function (err, doc) //find if a value exists
+      {
+        var times = 0;
+        console.log("Doc is:");
+        console.log(doc);
+
+        if (doc.length > 0) //if it does
+        {
+          console.log("This User exists in this metin. UserId: " + req.user._id.toString() + " and from database: " + doc[0].uid + " With timesRead " + doc[0].timesRead);
+          //console.log("No of times inside is " + noOfTimes);
+          times = doc[0].timesRead;
 
 
-      };
-      //console.log(current);
-      //current.noOfTimes = '12'
-      current.noOfTimes = noOfTimes;
-      console.log('current.noOfTimes: ' + current.noOfTimes);
+        } else {
+          var toBeSent = {
+            uid: req.user._id.toString(),
+            textNo: metinNumber,
+            timesRead: 0
+          }
+          MongoClient.connect(url, function (err, db) {
+            if (err) throw err;
+            // insert document to 'repeat' collection using insertOne
+            db.collection("repeat").insertOne(toBeSent, function (err, res) {
+              if (err) throw err;
+              console.log("Document inserted");
+              // close the connection to db when you are done with it
+              db.close();
+            });
+          });
 
-      res.send(current);
-      console.log(req.user._id);
+
+        }
+        console.log("Times read is " + times);
+        current.timesRead = times
+        console.log("Current is above of last \n " + JSON.stringify(current));
+        res.send(current)
+      })
+
+      console.log("Current is lasr \n" + JSON.stringify(current));
+
+    })
 
 
-      db.close();
-    });
-  });
 
 
 
+
+
+    //res.send(current)
+  })
+
+
+  //metinNumber =  getUnreadMetin(req.user._id.toString());
 
 
 })
 
+function getUnreadMetin(uid) {
+
+  MongoClient.connect(url, function (err, db) {
+    if (err) throw err;
+    var dbo = db.db("nodekb");
+
+
+    dbo.collection("texts").find().toArray(function (err, result) {
+      if (err) throw err;
+      for (let value of result) {
+        if (!(value.readBy.includes(uid.toString()))) {
+          console.log("userId is: " + uid + " did not read metin number " + value.no);
+
+          db.close();
+
+          return value.no;
+
+
+        }
+      }
+    })
+  })
+
+}
+
+
 module.exports = router;
+
+
