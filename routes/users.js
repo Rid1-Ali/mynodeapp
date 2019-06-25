@@ -118,9 +118,9 @@ router.get('/getUserId', function (req, res) {
 //Ajax uploading
 router.post('/upload', uploading.single('audio'), function (req, res) {
 
-  console.log('Node Ajax is called');
-  console.log(typeof (req.formdata));
-  console.log('noOfTimes from serverside is ' + req.body.noOfTimes)
+  //console.log('Node Ajax is called');
+  //console.log(typeof (req.formdata));
+  //console.log('noOfTimes from serverside is ' + req.body.noOfTimes)
   //console.log('Metin number is '+no);
 
   no2 = parseInt(req.body.no, 10);
@@ -141,7 +141,7 @@ router.post('/upload', uploading.single('audio'), function (req, res) {
     //var myquery = { address: "Valley 345" };
     //var newvalues = { $set: { name: "Mickey", address: "Canyon 123" } };
     //dbo.collection("repeat").update({ name: "ridwan" }, { $set: { address: "Canyon 123" } }, { upsert: false });
-    console.log("True or False: " + (parseInt(req.body.noOfTimes, 10) > 3));
+    //console.log("True or False: " + (parseInt(req.body.noOfTimes, 10) > 3));
 
     if (parseInt(req.body.noOfTimes, 10) > 3) {
       dbo.collection("texts").update(myquery, newvalues, { upsert: false, multi: true });
@@ -180,10 +180,10 @@ router.get('/gettext', async function (req, res) {
       for (let value of result) {
         if (!(value.readBy.includes(req.user._id.toString()))) {
           metinNumber = value.no;
-          console.log("userId is: " + req.user._id.toString() + " did not read metin number " + value.no);
+          //("userId is: " + req.user._id.toString() + " did not read metin number " + value.no);
 
 
-          console.log("Metin number is " + metinNumber);
+          //console.log("Metin number is " + metinNumber);
           current = value
           //current.timesRead = 5
           //console.log("current is " + JSON.stringify(current) );
@@ -193,12 +193,12 @@ router.get('/gettext', async function (req, res) {
       dbo.collection("repeat").find({ uid: req.user._id.toString(), textNo: parseInt(metinNumber, 10) }).toArray(function (err, doc) //find if a value exists
       {
         var times = 0;
-        console.log("Doc is:");
-        console.log(doc);
+        //console.log("Doc is:");
+        //console.log(doc);
 
         if (doc.length > 0) //if it does
         {
-          console.log("This User exists in this metin. UserId: " + req.user._id.toString() + " and from database: " + doc[0].uid + " With timesRead " + doc[0].timesRead);
+          //console.log("This User exists in this metin. UserId: " + req.user._id.toString() + " and from database: " + doc[0].uid + " With timesRead " + doc[0].timesRead);
           //console.log("No of times inside is " + noOfTimes);
           times = doc[0].timesRead;
 
@@ -214,7 +214,7 @@ router.get('/gettext', async function (req, res) {
             // insert document to 'repeat' collection using insertOne
             db.collection("repeat").insertOne(toBeSent, function (err, res) {
               if (err) throw err;
-              console.log("Document inserted");
+              //console.log("Document inserted");
               // close the connection to db when you are done with it
               db.close();
             });
@@ -222,13 +222,13 @@ router.get('/gettext', async function (req, res) {
 
 
         }
-        console.log("Times read is " + times);
+        //console.log("Times read is " + times);
         current.timesRead = times
-        console.log("Current is above of last \n " + JSON.stringify(current));
+        //console.log("Current is above of last \n " + JSON.stringify(current));
         res.send(current)
       })
 
-      console.log("Current is lasr \n" + JSON.stringify(current));
+      //("Current is lasr \n" + JSON.stringify(current));
 
     })
 
@@ -258,7 +258,7 @@ function getUnreadMetin(uid) {
       if (err) throw err;
       for (let value of result) {
         if (!(value.readBy.includes(uid.toString()))) {
-          console.log("userId is: " + uid + " did not read metin number " + value.no);
+          //console.log("userId is: " + uid + " did not read metin number " + value.no);
 
           db.close();
 
